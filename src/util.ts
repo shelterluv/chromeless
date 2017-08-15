@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { Client, Cookie, DeviceMetrics, PdfOptions } from './types'
+import { Client, Cookie, DeviceMetrics, PdfOptions, CDPOptions } from './types'
 import * as CDP from 'chrome-remote-interface'
 
 export const version: string = ((): string => {
@@ -498,6 +498,23 @@ export async function setFileInput(
     selector: selector,
   })
   return await DOM.setFileInputFiles({ files: files, nodeId: node.nodeId })
+}
+
+export function tabs(): Promise<string[]> {
+    return CDP.List({})
+}
+
+export function activate(
+    cdpOptions: CDPOptions,
+    targetId: String
+): Promise<void> {
+  const options = {
+    host: cdpOptions.host,
+    port: cdpOptions.port,
+    secure: cdpOptions.secure,
+    id: targetId
+  }
+  return CDP.Activate(options)
 }
 
 export function getDebugOption(): boolean {

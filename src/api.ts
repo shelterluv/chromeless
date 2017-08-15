@@ -7,6 +7,7 @@ import {
   CookieQuery,
   PdfOptions,
   DeviceMetrics,
+  CDPOptions,
 } from './types'
 import { getDebugOption } from './util'
 import { isArray } from 'util'
@@ -14,12 +15,21 @@ import { isArray } from 'util'
 export default class Chromeless<T extends any> implements Promise<T> {
   private queue: Queue
   private lastReturnPromise: Promise<any>
+  private cdpOptions: CDPOptions
 
   constructor(options: ChromelessOptions = {}, copyInstance?: Chromeless<any>) {
     if (copyInstance) {
       this.queue = copyInstance.queue
       this.lastReturnPromise = copyInstance.lastReturnPromise
       return
+    }
+
+    const cdpOptions: CDPOptions = {
+        host: process.env['CHROMELESS_CHROME_HOST'] || 'localhost',
+        port: parseInt(process.env['CHROMELESS_CHROME_PORT'], 10) || 9222,
+        secure: false,
+        closeTab: true,
+        ...options.cdp,
     }
 
     const mergedOptions: ChromelessOptions = {
@@ -37,13 +47,7 @@ export default class Chromeless<T extends any> implements Promise<T> {
         ...options.viewport,
       },
 
-      cdp: {
-        host: process.env['CHROMELESS_CHROME_HOST'] || 'localhost',
-        port: parseInt(process.env['CHROMELESS_CHROME_PORT'], 10) || 9222,
-        secure: false,
-        closeTab: true,
-        ...options.cdp,
-      },
+      cdp: cdpOptions,
     }
 
     const chrome = mergedOptions.remote
@@ -53,6 +57,8 @@ export default class Chromeless<T extends any> implements Promise<T> {
     this.queue = new Queue(chrome)
 
     this.lastReturnPromise = Promise.resolve(undefined)
+
+    this.cdpOptions = cdpOptions
   }
 
   /*
@@ -316,6 +322,22 @@ export default class Chromeless<T extends any> implements Promise<T> {
       files = [files]
     }
     this.queue.enqueue({ type: 'setFileInput', selector, files })
+    return this
+  }
+
+  tabs(): Chromeless<string[]> {
+    this.lastReturnPromise = this.queue.process<string>({
+        type: 'tabs',
+    })
+
+    return new Chromeless<string[]>({}, this)
+  }
+
+  activate(targetId: string): Chromeless<T> {
+    const cdpOptions = this.cdpOptions
+    this.lastReturnPromise = this.queue.process<string>({
+        type: 'activate', cdpOptions, targetId
+    })
     return this
   }
 

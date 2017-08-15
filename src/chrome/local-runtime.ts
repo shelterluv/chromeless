@@ -38,6 +38,8 @@ import {
   focus,
   clearInput,
   setFileInput,
+  tabs,
+  activate
 } from '../util'
 
 export default class LocalRuntime {
@@ -113,6 +115,10 @@ export default class LocalRuntime {
         return this.clearInput(command.selector)
       case 'setFileInput':
         return this.setFileInput(command.selector, command.files)
+      case 'tabs':
+        return tabs()
+      case 'activate':
+        return activate(command.cdpOptions, command.targetId)
       default:
         throw new Error(`No such command: ${JSON.stringify(command)}`)
     }

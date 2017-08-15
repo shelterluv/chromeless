@@ -176,6 +176,14 @@ export type Command =
       selector: string
       files: string[]
     }
+  | {
+      type: 'tabs'
+    }
+  | {
+      type: 'activate'
+      cdpOptions: CDPOptions
+      targetId: string
+    }
 
 export interface Cookie {
   url?: string

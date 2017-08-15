@@ -40,7 +40,8 @@ Chromeless provides TypeScript typings.
 - [`setCookies(cookies: Cookie[])`](#api-setcookies-many)
 - [`deleteCookies(name: string)`](#api-deletecookies)
 - [`clearCookies()`](#api-clearcookies)
-
+- [`tabs()`](#api-tabs)
+- [`activate(targetId: string)`](#api-activate)
 
 ---------------------------------------
 
@@ -683,4 +684,30 @@ __Example__
 
 ```js
 await chromeless.setFileInput('.uploader', '/User/Me/Documents/img.jpg')
+```
+---------------------------------------
+
+<a name="api-tabs" />
+
+### tabs(): Chromeless<string[]>
+
+List all the tabs that are currently open in this CDP session.
+
+__Example__
+
+```js
+await chromeless.tabs()
+```
+---------------------------------------
+
+<a name="api-tabs" />
+
+### activate(targetId: string): Chromeless<T>
+
+Switch to a different tab. TargetId is retrieved using the tabs() method above.
+
+__Example__
+
+```js
+await chromeless.activate('my-cdp-based-target-identifier')
 ```
